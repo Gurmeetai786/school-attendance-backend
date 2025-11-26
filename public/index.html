@@ -3,199 +3,647 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>School Attendance</title>
+  <title>GS Attendance Scanner</title>
+
+  <!-- QR scanner library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
   <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-soft: #e0e7ff;
+      --accent: #06b6d4;
+      --bg: #0f172a;
+      --card-bg: #0b1120;
+      --border: #1e293b;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
-      padding: 20px;
+      background: radial-gradient(circle at top, #1d4ed8 0, #020617 55%);
+      color: var(--text-main);
+      padding: 16px;
     }
+
+    .app-shell {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.7);
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: #e5e7eb;
+      opacity: 0.95;
+    }
+
     .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
     }
+
     .card {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
     }
-    button {
-      padding: 10px 15px;
-      margin: 5px 0;
-      background: #0275d8;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
-    button.secondary {
-      background: #5a5a5a;
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin: 6px 0 3px;
+      color: var(--text-muted);
     }
+
     input {
       width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #bbb;
-      border-radius: 5px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
     }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+    }
+
+    button {
+      padding: 7px 12px;
+      margin: 4px 0;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.6);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(45, 212, 191, 0.7);
+    }
+
+    button.outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid #4b5563;
+    }
+
+    button.small {
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(15, 23, 42, 0.7);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.7);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
     .small {
-      font-size: 14px;
-      color: #444;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #qr-reader {
+      width: 100%;
+      margin-top: 8px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1f2933;
+      display: none;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+      margin-left: 4px;
+    }
+
+    .status {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+    .status.ok {
+      color: var(--success);
+    }
+    .status.err {
+      color: var(--danger);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      header h1 {
+        font-size: 18px;
+      }
+      .container {
+        padding: 10px;
+      }
+      .card {
+        padding: 10px 11px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>School Attendance System</h2>
+  <div class="app-shell">
+    <header>
+      <h1>GS Attendance Scanner</h1>
+      <p>Scan QR or enter ID. Data goes directly to Excel and dashboard.</p>
+    </header>
 
-    <!-- QR Card -->
-    <div class="card">
-      <strong>1. Scan QR or Enter QR Token</strong>
-      <input id="qrToken" placeholder="Enter QR token (e.g., tk_stu_0001)" />
-      <button id="sendQRBtn">Submit QR Attendance</button>
-      <div id="qrStatus" class="small"></div>
-    </div>
+    <div class="container">
 
-    <!-- PIN Card -->
-    <div class="card">
-      <strong>2. Enter PIN</strong>
-      <input id="pinInput" placeholder="Enter PIN (1234)" type="password" />
-      <button id="pinBtn">Submit PIN Attendance</button>
-      <div id="pinStatus" class="small"></div>
-    </div>
+      <!-- CLASS / DEVICE CARD -->
+      <div class="card">
+        <strong>0. Class / Device ID</strong>
+        <label for="deviceId">Class or device code</label>
+        <input
+          id="deviceId"
+          placeholder="Example: 9A, 10B, 11C, teacher-phone-9A"
+        />
+        <div class="small">
+          This appears as <b>Device ID</b> in Excel & dashboard.  
+          For fixed phones, keep one code per class (like <b>9A</b>).
+        </div>
+      </div>
 
-    <!-- VOICE Card -->
-    <div class="card">
-      <strong>3. Voice verification</strong>
-      <button id="enrollVoiceBtn" class="secondary">🎙 Enroll Voice</button>
-      <button id="checkVoiceBtn" class="secondary">🎙 Check Voice</button>
-      <div id="voiceStatus" class="small"></div>
-    </div>
+      <!-- QR CARD -->
+      <div class="card">
+        <strong>1. Scan QR or Enter QR Token</strong>
 
-    <!-- ADMIN PANEL -->
-    <div class="card">
-      <strong>Admin / Principal</strong>
-      <p class="small">
-        <a href="/voices.html" target="_blank">Open Voice Review Page</a>
-      </p>
+        <div class="row" style="margin-bottom: 6px;">
+          <span class="small">QR Camera</span>
+          <div>
+            <button id="startScanBtn" class="outline small">Start camera</button>
+            <button id="stopScanBtn" class="outline small" disabled>Stop</button>
+          </div>
+        </div>
+
+        <div id="qr-reader"></div>
+
+        <label for="qrToken">
+          QR Token / Student ID
+          <span class="pill">Auto-filled after scan</span>
+        </label>
+        <input id="qrToken" placeholder="Example: 24-9A-001" />
+
+        <button id="sendQRBtn" class="primary">Submit QR Attendance</button>
+        <div id="qrStatus" class="status"></div>
+      </div>
+
+      <!-- PIN CARD -->
+      <div class="card">
+        <strong>2. Enter PIN</strong>
+        <label for="pinInput">PIN</label>
+        <input id="pinInput" placeholder="Enter PIN (e.g., 1234)" type="password" />
+        <button id="pinBtn" class="primary">Submit PIN Attendance</button>
+        <div id="pinStatus" class="status"></div>
+      </div>
+
+      <!-- VOICE CARD -->
+      <div class="card">
+        <strong>3. Voice verification</strong>
+        <p class="small">
+          Use the same student ID / QR token as above. The audio is stored on the server for review.
+        </p>
+        <div class="row">
+          <button id="enrollVoiceBtn" class="secondary">🎙 Enroll Voice</button>
+          <button id="checkVoiceBtn" class="secondary">🎙 Check Voice</button>
+        </div>
+        <div id="voiceStatus" class="status"></div>
+      </div>
+
+      <!-- ADMIN PANEL -->
+      <div class="card">
+        <strong>Admin / Principal</strong>
+        <p class="small" style="margin-bottom: 4px;">
+          💻 Main dashboard: <a href="/school-dashboard.html" target="_blank">Open Attendance Dashboard</a>
+        </p>
+        <p class="small">
+          🎧 Voice files review: <a href="/voices.html" target="_blank">Open Voice Review Page</a>
+        </p>
+      </div>
+
     </div>
   </div>
 
 <script>
-const API = "https://school-attendance-backend-3kw6.onrender.com"; 
+  // Use relative API so it works both locally and on Render
+  const API = ""; // same origin
 
-// QR Attendance
-document.getElementById("sendQRBtn").onclick = async () => {
-  const qr = document.getElementById("qrToken").value.trim();
+  const DEVICE_KEY = "devkey123"; // must match DEVICE_API_KEY in .env
 
-  const res = await fetch(API + "/api/device/event", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-device-key": "devkey123"
-    },
-    body: JSON.stringify({
-      device_id: "web-qr",
-      events: [
-        { token_or_pin: qr, method: "qr", timestamp: new Date().toISOString() }
-      ]
-    })
+  const deviceIdInput = document.getElementById("deviceId");
+  const qrTokenInput = document.getElementById("qrToken");
+  const pinInput = document.getElementById("pinInput");
+  const qrStatus = document.getElementById("qrStatus");
+  const pinStatus = document.getElementById("pinStatus");
+  const voiceStatus = document.getElementById("voiceStatus");
+
+  const startScanBtn = document.getElementById("startScanBtn");
+  const stopScanBtn = document.getElementById("stopScanBtn");
+  const qrReaderDiv = document.getElementById("qr-reader");
+
+  let html5QrCode = null;
+  let scanning = false;
+
+  function setStatus(el, msg, type) {
+    el.textContent = msg;
+    el.className = "status " + (type || "");
+  }
+
+  // Remember last device/class code
+  (function loadLastDevice() {
+    const last = localStorage.getItem("lastDeviceId");
+    if (last) deviceIdInput.value = last;
+  })();
+
+  deviceIdInput.addEventListener("change", () => {
+    localStorage.setItem("lastDeviceId", deviceIdInput.value.trim());
   });
 
-  const data = await res.json();
-  document.getElementById("qrStatus").textContent = JSON.stringify(data);
-};
+  // ==============================
+  // QR CAMERA HANDLING
+  // ==============================
+  async function startCamera() {
+    if (scanning) return;
+    if (!window.Html5Qrcode) {
+      alert("QR scanner library not loaded. Check your internet connection.");
+      return;
+    }
 
-// PIN Attendance
-document.getElementById("pinBtn").onclick = async () => {
-  const pin = document.getElementById("pinInput").value.trim();
+    const device_id = deviceIdInput.value.trim();
+    if (!device_id) {
+      alert("Please enter Class / Device ID first.");
+      return;
+    }
 
-  const res = await fetch(API + "/api/device/event", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-device-key": "devkey123"
-    },
-    body: JSON.stringify({
-      device_id: "web-pin",
-      events: [
-        { token_or_pin: pin, method: "pin", timestamp: new Date().toISOString() }
-      ]
-    })
-  });
+    qrReaderDiv.style.display = "block";
+    setStatus(qrStatus, "Starting camera...", "");
 
-  const data = await res.json();
-  document.getElementById("pinStatus").textContent = JSON.stringify(data);
-};
+    try {
+      html5QrCode = new Html5Qrcode("qr-reader");
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-// Voice recording helper
-async function recordAudio(seconds = 3) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const mediaRecorder = new MediaRecorder(stream);
-  let chunks = [];
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        decodedText => {
+          qrTokenInput.value = decodedText;
+          setStatus(qrStatus, "QR scanned: " + decodedText, "ok");
+          // Stop camera after first successful scan
+          stopCamera();
+        },
+        errorMsg => {
+          // ignore small errors
+        }
+      );
 
-  return new Promise(resolve => {
-    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+      scanning = true;
+      startScanBtn.disabled = true;
+      stopScanBtn.disabled = false;
+      setStatus(qrStatus, "Camera running. Point at QR code.", "");
+    } catch (err) {
+      console.error(err);
+      setStatus(qrStatus, "Error starting camera: " + err, "err");
+      qrReaderDiv.style.display = "none";
+      scanning = false;
+      startScanBtn.disabled = false;
+      stopScanBtn.disabled = true;
+    }
+  }
 
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: "audio/webm" });
-      stream.getTracks().forEach(t => t.stop());
-      resolve(blob);
-    };
+  async function stopCamera() {
+    if (!html5QrCode || !scanning) {
+      qrReaderDiv.style.display = "none";
+      startScanBtn.disabled = false;
+      stopScanBtn.disabled = true;
+      return;
+    }
 
-    mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), seconds * 1000);
-  });
-}
+    try {
+      await html5QrCode.stop();
+      await html5QrCode.clear();
+    } catch (err) {
+      console.error(err);
+    }
 
-// Voice Enroll
-document.getElementById("enrollVoiceBtn").onclick = async () => {
-  const studentId = document.getElementById("qrToken").value.trim();
-  if (!studentId) return alert("Scan QR token first");
+    scanning = false;
+    qrReaderDiv.style.display = "none";
+    startScanBtn.disabled = false;
+    stopScanBtn.disabled = true;
+    setStatus(qrStatus, "Camera stopped.", "");
+  }
 
-  const audio = await recordAudio(3);
+  startScanBtn.onclick = startCamera;
+  stopScanBtn.onclick = stopCamera;
 
-  const form = new FormData();
-  form.append("audio", audio, "enroll.webm");
-  form.append("student_id", studentId);
-  form.append("type", "enroll");
+  // ==============================
+  // QR ATTENDANCE SUBMIT
+  // ==============================
+  document.getElementById("sendQRBtn").onclick = async () => {
+    const device_id = deviceIdInput.value.trim();
+    const qr = qrTokenInput.value.trim();
 
-  const res = await fetch(API + "/api/voice/enroll", { method: "POST", body: form });
-  const data = await res.json();
+    if (!device_id) {
+      alert("Please enter Class / Device ID.");
+      return;
+    }
+    if (!qr) {
+      alert("Please scan QR or enter token.");
+      return;
+    }
 
-  document.getElementById("voiceStatus").textContent =
-    "Enroll saved: " + data.file;
-};
+    setStatus(qrStatus, "Sending QR attendance...", "");
 
-// Voice Check
-document.getElementById("checkVoiceBtn").onclick = async () => {
-  const studentId = document.getElementById("qrToken").value.trim();
-  if (!studentId) return alert("Scan QR token first");
+    try {
+      const res = await fetch(API + "/api/device/event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-device-key": DEVICE_KEY
+        },
+        body: JSON.stringify({
+          device_id,
+          events: [
+            {
+              token_or_pin: qr,
+              method: "qr",
+              timestamp: new Date().toISOString()
+            }
+          ]
+        })
+      });
 
-  const audio = await recordAudio(3);
+      const data = await res.json();
+      if (res.ok && data.results && data.results[0]?.ok) {
+        setStatus(qrStatus, "QR attendance saved for " + qr, "ok");
+        // Optionally clear token
+        // qrTokenInput.value = "";
+      } else {
+        setStatus(
+          qrStatus,
+          "Error from server: " + JSON.stringify(data),
+          "err"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus(qrStatus, "Network / server error.", "err");
+    }
+  };
 
-  const form = new FormData();
-  form.append("audio", audio, "check.webm");
-  form.append("student_id", studentId);
-  form.append("type", "check");
+  // ==============================
+  // PIN ATTENDANCE SUBMIT
+  // ==============================
+  document.getElementById("pinBtn").onclick = async () => {
+    const device_id = deviceIdInput.value.trim();
+    const pin = pinInput.value.trim();
 
-  const res = await fetch(API + "/api/voice/check", { method: "POST", body: form });
-  const data = await res.json();
+    if (!device_id) {
+      alert("Please enter Class / Device ID.");
+      return;
+    }
+    if (!pin) {
+      alert("Please enter PIN.");
+      return;
+    }
 
-  document.getElementById("voiceStatus").textContent =
-    "Check saved: " + data.file;
-};
+    setStatus(pinStatus, "Sending PIN attendance...", "");
+
+    try {
+      const res = await fetch(API + "/api/device/event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-device-key": DEVICE_KEY
+        },
+        body: JSON.stringify({
+          device_id,
+          events: [
+            {
+              token_or_pin: pin,
+              method: "pin",
+              timestamp: new Date().toISOString(),
+              extras: { entered_pin: pin }
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.results && data.results[0]?.ok) {
+        setStatus(pinStatus, "PIN attendance saved.", "ok");
+        pinInput.value = "";
+      } else {
+        setStatus(
+          pinStatus,
+          "Error from server: " + JSON.stringify(data),
+          "err"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus(pinStatus, "Network / server error.", "err");
+    }
+  };
+
+  // ==============================
+  // VOICE RECORDING HELPERS
+  // ==============================
+  async function recordAudio(seconds = 3) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      let chunks = [];
+
+      return new Promise(resolve => {
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          stream.getTracks().forEach(t => t.stop());
+          resolve(blob);
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), seconds * 1000);
+      });
+    } catch (err) {
+      alert("Microphone access denied.");
+      throw err;
+    }
+  }
+
+  // VOICE ENROLL
+  document.getElementById("enrollVoiceBtn").onclick = async () => {
+    const studentId = qrTokenInput.value.trim();
+    if (!studentId) {
+      alert("Enter or scan Student ID / QR token first.");
+      return;
+    }
+
+    try {
+      setStatus(voiceStatus, "Recording voice for enroll...", "");
+      const audio = await recordAudio(3);
+      const form = new FormData();
+      form.append("audio", audio, "enroll.webm");
+      form.append("student_id", studentId);
+      form.append("type", "enroll");
+
+      const res = await fetch(API + "/api/voice/enroll", {
+        method: "POST",
+        body: form
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        setStatus(
+          voiceStatus,
+          "Enroll voice saved: " + (data.file || ""),
+          "ok"
+        );
+      } else {
+        setStatus(
+          voiceStatus,
+          "Error from server: " + JSON.stringify(data),
+          "err"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus(voiceStatus, "Error during enroll.", "err");
+    }
+  };
+
+  // VOICE CHECK
+  document.getElementById("checkVoiceBtn").onclick = async () => {
+    const studentId = qrTokenInput.value.trim();
+    if (!studentId) {
+      alert("Enter or scan Student ID / QR token first.");
+      return;
+    }
+
+    try {
+      setStatus(voiceStatus, "Recording voice for check...", "");
+      const audio = await recordAudio(3);
+      const form = new FormData();
+      form.append("audio", audio, "check.webm");
+      form.append("student_id", studentId);
+      form.append("type", "check");
+
+      const res = await fetch(API + "/api/voice/check", {
+        method: "POST",
+        body: form
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        setStatus(
+          voiceStatus,
+          "Check voice saved: " + (data.file || ""),
+          "ok"
+        );
+      } else {
+        setStatus(
+          voiceStatus,
+          "Error from server: " + JSON.stringify(data),
+          "err"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus(voiceStatus, "Error during check.", "err");
+    }
+  };
 </script>
 
 </body>
 </html>
+
+
 
