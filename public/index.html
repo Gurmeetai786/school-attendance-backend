@@ -2,455 +2,200 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Class Attendance – QR + PIN + Voice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Attendance</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 16px;
+      font-family: Arial, sans-serif;
       background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
     }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 8px;
-      text-align: center;
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .card {
-      background: #fff;
-      padding: 12px 16px;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
       border-radius: 8px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     }
     button {
-      padding: 8px 14px;
-      border-radius: 6px;
+      padding: 10px 15px;
+      margin: 5px 0;
+      background: #0275d8;
+      color: white;
       border: none;
-      font-size: 0.95rem;
+      border-radius: 5px;
       cursor: pointer;
     }
-    button.primary {
-      background: #2563eb;
-      color: #fff;
-    }
     button.secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    label {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.9rem;
+      background: #5a5a5a;
     }
     input {
       width: 100%;
-      padding: 6px 8px;
-      margin-top: 4px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 0.95rem;
-      box-sizing: border-box;
-    }
-    #qr-region {
-      width: 100%;
+      padding: 10px;
       margin-top: 8px;
-    }
-    #status {
-      font-size: 0.9rem;
-      margin-top: 8px;
-      white-space: pre-wrap;
-    }
-    .row {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .row > * {
-      flex: 1;
+      margin-bottom: 8px;
+      border: 1px solid #bbb;
+      border-radius: 5px;
     }
     .small {
-      font-size: 0.8rem;
-      color: #4b5563;
-      margin-top: 4px;
+      font-size: 14px;
+      color: #444;
     }
   </style>
-
-  <!-- QR scanning library -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
+
 <body>
-  <h1>QR + PIN + Voice Attendance</h1>
+  <div class="container">
+    <h2>School Attendance System</h2>
 
-  <!-- Device / class info -->
-  <div class="card">
-    <strong>Device / Class</strong>
-    <label>
-      Device ID (e.g. teacher-phone-9A)
-      <input id="deviceId" value="teacher-phone-9A" />
-    </label>
-    <div class="small">
-      This identifies which phone or device is marking attendance.
+    <!-- QR Card -->
+    <div class="card">
+      <strong>1. Scan QR or Enter QR Token</strong>
+      <input id="qrToken" placeholder="Enter QR token (e.g., tk_stu_0001)" />
+      <button id="sendQRBtn">Submit QR Attendance</button>
+      <div id="qrStatus" class="small"></div>
+    </div>
+
+    <!-- PIN Card -->
+    <div class="card">
+      <strong>2. Enter PIN</strong>
+      <input id="pinInput" placeholder="Enter PIN (1234)" type="password" />
+      <button id="pinBtn">Submit PIN Attendance</button>
+      <div id="pinStatus" class="small"></div>
+    </div>
+
+    <!-- VOICE Card -->
+    <div class="card">
+      <strong>3. Voice verification</strong>
+      <button id="enrollVoiceBtn" class="secondary">🎙 Enroll Voice</button>
+      <button id="checkVoiceBtn" class="secondary">🎙 Check Voice</button>
+      <div id="voiceStatus" class="small"></div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="card">
+      <strong>Admin / Principal</strong>
+      <p class="small">
+        <a href="/voices.html" target="_blank">Open Voice Review Page</a>
+      </p>
     </div>
   </div>
 
-  <!-- QR Scanner -->
-  <div class="card">
-    <strong>1. Scan Student QR</strong>
-    <div id="qr-region"></div>
-    <div class="row">
-      <button id="startScan" class="primary">Start camera</button>
-      <button id="stopScan" class="secondary" disabled>Stop</button>
-    </div>
-    <label>
-      Last scanned QR token
-      <input id="qrToken" readonly placeholder="No QR scanned yet" />
-    </label>
-    <div class="small">
-      This QR token comes from the student's ID card.
-    </div>
-  </div>
+<script>
+const API = "https://school-attendance-backend-3kw6.onrender.com"; 
 
-  <!-- PIN + Voice-as-PIN -->
-  <div class="card">
-    <strong>2. Enter PIN (or use voice)</strong>
-    <label>
-      PIN (4 digits)
-      <input id="pinInput" maxlength="4" />
-    </label>
-    <div class="row">
-      <button id="startVoicePin" class="secondary">🎤 Speak PIN</button>
-      <button id="stopVoicePin" class="secondary" disabled>Stop</button>
-    </div>
-    <div class="small">
-      Ask the student to speak their 4-digit PIN when microphone is active.
-    </div>
-  </div>
+// QR Attendance
+document.getElementById("sendQRBtn").onclick = async () => {
+  const qr = document.getElementById("qrToken").value.trim();
 
-  <!-- Voice identity (enroll + check) -->
-  <div class="card">
-    <strong>3. Voice identity (optional anti-proxy)</strong>
-    <div class="row">
-      <button id="enrollVoiceBtn" class="secondary">🎙 Enroll Voice (once)</button>
-      <button id="checkVoiceBtn" class="secondary">🎙 Check Voice (suspected proxy)</button>
-    </div>
-    <div id="voiceStatus" class="small"></div>
-    <div class="small">
-      Use these when setting up initially (enroll), or if you doubt proxy (check).
-    </div>
-  </div>
+  const res = await fetch(API + "/api/device/event", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-device-key": "devkey123"
+    },
+    body: JSON.stringify({
+      device_id: "web-qr",
+      events: [
+        { token_or_pin: qr, method: "qr", timestamp: new Date().toISOString() }
+      ]
+    })
+  });
 
-  <!-- Send attendance -->
-  <div class="card">
-    <strong>4. Send to Backend</strong>
-    <div class="row">
-      <button id="sendBtn" class="primary">Mark Present</button>
-      <button id="clearBtn" class="secondary">Clear</button>
-    </div>
-      <div id="status"></div>
-</div>
-<!-- Principal / Admin section -->
-<div class="card">
-  <strong>Admin / Principal</strong>
-  <p class="small">
-    <a href="/voices.html" target="_blank">Open Voice Review Page</a>
-  </p>
-</div>
+  const data = await res.json();
+  document.getElementById("qrStatus").textContent = JSON.stringify(data);
+};
 
-    
+// PIN Attendance
+document.getElementById("pinBtn").onclick = async () => {
+  const pin = document.getElementById("pinInput").value.trim();
 
+  const res = await fetch(API + "/api/device/event", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-device-key": "devkey123"
+    },
+    body: JSON.stringify({
+      device_id: "web-pin",
+      events: [
+        { token_or_pin: pin, method: "pin", timestamp: new Date().toISOString() }
+      ]
+    })
+  });
 
-  <script>
-    // ===== Config =====
-    const API_URL = "/api/device/event"; // same origin
-    const DEVICE_API_KEY = "devkey123";  // must match .env DEVICE_API_KEY
+  const data = await res.json();
+  document.getElementById("pinStatus").textContent = JSON.stringify(data);
+};
 
-    // ===== Common elements =====
-    const qrRegionId = "qr-region";
-    const startScanBtn = document.getElementById("startScan");
-    const stopScanBtn = document.getElementById("stopScan");
-    const qrTokenInput = document.getElementById("qrToken");
-    const pinInput = document.getElementById("pinInput");
-    const deviceIdInput = document.getElementById("deviceId");
-    const statusBox = document.getElementById("status");
+// Voice recording helper
+async function recordAudio(seconds = 3) {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mediaRecorder = new MediaRecorder(stream);
+  let chunks = [];
 
-    function logStatus(msg, isError = false) {
-      const prefix = isError ? "❌ " : "✅ ";
-      statusBox.textContent = prefix + msg;
-    }
+  return new Promise(resolve => {
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
 
-    // ===== QR Code handling =====
-    let html5QrCode = null;
-    let qrScanning = false;
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "audio/webm" });
+      stream.getTracks().forEach(t => t.stop());
+      resolve(blob);
+    };
 
-    async function startQrScanner() {
-      try {
-        if (!html5QrCode) {
-          html5QrCode = new Html5Qrcode(qrRegionId);
-        }
-        qrScanning = true;
-        startScanBtn.disabled = true;
-        stopScanBtn.disabled = false;
-        statusBox.textContent = "Camera started. Hold ID card in front of camera.";
+    mediaRecorder.start();
+    setTimeout(() => mediaRecorder.stop(), seconds * 1000);
+  });
+}
 
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText, decodedResult) => {
-            qrTokenInput.value = decodedText;
-            logStatus("QR scanned: " + decodedText);
-          },
-          (errorMessage) => {
-            // ignore decode errors
-          }
-        );
-      } catch (err) {
-        logStatus("Could not start camera: " + err, true);
-        startScanBtn.disabled = false;
-        stopScanBtn.disabled = true;
-      }
-    }
+// Voice Enroll
+document.getElementById("enrollVoiceBtn").onclick = async () => {
+  const studentId = document.getElementById("qrToken").value.trim();
+  if (!studentId) return alert("Scan QR token first");
 
-    async function stopQrScanner() {
-      if (html5QrCode && qrScanning) {
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-        qrScanning = false;
-      }
-      startScanBtn.disabled = false;
-      stopScanBtn.disabled = true;
-      statusBox.textContent = "Camera stopped.";
-    }
+  const audio = await recordAudio(3);
 
-    startScanBtn.addEventListener("click", startQrScanner);
-    stopScanBtn.addEventListener("click", stopQrScanner);
+  const form = new FormData();
+  form.append("audio", audio, "enroll.webm");
+  form.append("student_id", studentId);
+  form.append("type", "enroll");
 
-    // ===== Voice for PIN (speech → digits) =====
-    let recognitionPin = null;
-    const startVoicePinBtn = document.getElementById("startVoicePin");
-    const stopVoicePinBtn = document.getElementById("stopVoicePin");
+  const res = await fetch(API + "/api/voice/enroll", { method: "POST", body: form });
+  const data = await res.json();
 
-    function setupPinRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        logStatus("Voice recognition for PIN not supported in this browser.", true);
-        startVoicePinBtn.disabled = true;
-        stopVoicePinBtn.disabled = true;
-        return null;
-      }
-      const recog = new SpeechRecognition();
-      recog.lang = "en-IN";
-      recog.interimResults = false;
-      recog.maxAlternatives = 1;
-      return recog;
-    }
+  document.getElementById("voiceStatus").textContent =
+    "Enroll saved: " + data.file;
+};
 
-    function startVoicePin() {
-      if (!recognitionPin) {
-        recognitionPin = setupPinRecognition();
-        if (!recognitionPin) return;
-      }
+// Voice Check
+document.getElementById("checkVoiceBtn").onclick = async () => {
+  const studentId = document.getElementById("qrToken").value.trim();
+  if (!studentId) return alert("Scan QR token first");
 
-      startVoicePinBtn.disabled = true;
-      stopVoicePinBtn.disabled = false;
-      logStatus("Listening for PIN... ask student to speak 4 digits.");
+  const audio = await recordAudio(3);
 
-      recognitionPin.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        const digitsOnly = transcript.replace(/\D/g, "").slice(0, 4);
-        if (digitsOnly.length === 4) {
-          pinInput.value = digitsOnly;
-          logStatus("Heard PIN: " + digitsOnly);
-        } else if (digitsOnly.length > 0) {
-          pinInput.value = digitsOnly;
-          logStatus("Heard digits, please verify: " + digitsOnly);
-        } else {
-          logStatus("Could not detect PIN digits. Try again.", true);
-        }
-        startVoicePinBtn.disabled = false;
-        stopVoicePinBtn.disabled = true;
-      };
+  const form = new FormData();
+  form.append("audio", audio, "check.webm");
+  form.append("student_id", studentId);
+  form.append("type", "check");
 
-      recognitionPin.onerror = (event) => {
-        logStatus("Voice PIN error: " + event.error, true);
-        startVoicePinBtn.disabled = false;
-        stopVoicePinBtn.disabled = true;
-      };
+  const res = await fetch(API + "/api/voice/check", { method: "POST", body: form });
+  const data = await res.json();
 
-      recognitionPin.onend = () => {
-        if (!stopVoicePinBtn.disabled) {
-          startVoicePinBtn.disabled = false;
-          stopVoicePinBtn.disabled = true;
-        }
-      };
+  document.getElementById("voiceStatus").textContent =
+    "Check saved: " + data.file;
+};
+</script>
 
-      recognitionPin.start();
-    }
-
-    function stopVoicePin() {
-      if (recognitionPin) recognitionPin.stop();
-      startVoicePinBtn.disabled = false;
-      stopVoicePinBtn.disabled = true;
-      logStatus("Stopped listening for PIN.");
-    }
-
-    startVoicePinBtn.addEventListener("click", startVoicePin);
-    stopVoicePinBtn.addEventListener("click", stopVoicePin);
-
-    // ===== Voice record for identity (enroll + check) =====
-    async function recordAudio(seconds = 3) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      let chunks = [];
-
-      return new Promise((resolve) => {
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'audio/webm' });
-          stream.getTracks().forEach(t => t.stop());
-          resolve(blob);
-        };
-
-        mediaRecorder.start();
-        setTimeout(() => {
-          mediaRecorder.stop();
-        }, seconds * 1000);
-      });
-    }
-
-    const enrollVoiceBtn = document.getElementById("enrollVoiceBtn");
-    const checkVoiceBtn = document.getElementById("checkVoiceBtn");
-    const voiceStatus = document.getElementById("voiceStatus");
-
-    enrollVoiceBtn.addEventListener("click", async () => {
-      const studentId = qrTokenInput.value.trim();
-      if (!studentId) {
-        voiceStatus.textContent = "Scan student's QR first.";
-        return;
-      }
-
-      voiceStatus.textContent = "Recording voice for enrollment (3 seconds)...";
-      const audioBlob = await recordAudio(3);
-
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "enroll.webm");
-      formData.append("student_id", studentId);
-      formData.append("type", "enroll");
-
-      try {
-        const res = await fetch("/api/voice/enroll", {
-          method: "POST",
-          body: formData
-        });
-        const data = await res.json();
-        if (data.ok) {
-          voiceStatus.textContent = "Voice enrolled and saved ✔ (" + data.file + ")";
-        } else {
-          voiceStatus.textContent = "Error enrolling voice.";
-        }
-      } catch (err) {
-        voiceStatus.textContent = "Error enrolling voice: " + err;
-      }
-    });
-
-    checkVoiceBtn.addEventListener("click", async () => {
-      const studentId = qrTokenInput.value.trim();
-      if (!studentId) {
-        voiceStatus.textContent = "Scan student's QR first.";
-        return;
-      }
-
-      voiceStatus.textContent = "Recording today's voice for check (3 seconds)...";
-      const audioBlob = await recordAudio(3);
-
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "check.webm");
-      formData.append("student_id", studentId);
-      formData.append("type", "check");
-
-      try {
-        const res = await fetch("/api/voice/check", {
-          method: "POST",
-          body: formData
-        });
-        const data = await res.json();
-        if (data.ok) {
-          voiceStatus.textContent = "Voice sample saved for later comparison ✔ (" + data.file + ")";
-        } else {
-          voiceStatus.textContent = "Error saving voice sample.";
-        }
-      } catch (err) {
-        voiceStatus.textContent = "Error saving voice sample: " + err;
-      }
-    });
-
-    // ===== Send attendance to backend =====
-    const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearBtn");
-
-    async function sendAttendance() {
-      const qrToken = qrTokenInput.value.trim();
-      const pin = pinInput.value.trim();
-      const deviceId = deviceIdInput.value.trim() || "teacher-phone-unknown";
-
-      if (!qrToken) {
-        logStatus("Please scan a QR code first.", true);
-        return;
-      }
-      if (pin.length !== 4) {
-        logStatus("Please enter a 4-digit PIN.", true);
-        return;
-      }
-
-      sendBtn.disabled = true;
-      logStatus("Sending attendance to backend...");
-
-      try {
-        const body = {
-          device_id: deviceId,
-          events: [
-            {
-              token_or_pin: qrToken,
-              method: "qr_pin",
-              timestamp: new Date().toISOString(),
-              extras: { entered_pin: pin }
-            }
-          ]
-        };
-
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-device-key": DEVICE_API_KEY
-          },
-          body: JSON.stringify(body)
-        });
-
-        const data = await res.json();
-        statusBox.textContent = "Backend response:\n" + JSON.stringify(data, null, 2);
-      } catch (err) {
-        logStatus("Request failed: " + err, true);
-      } finally {
-        sendBtn.disabled = false;
-      }
-    }
-
-    function clearForm() {
-      qrTokenInput.value = "";
-      pinInput.value = "";
-      statusBox.textContent = "";
-      voiceStatus.textContent = "";
-    }
-
-    sendBtn.addEventListener("click", sendAttendance);
-    clearBtn.addEventListener("click", clearForm);
-  </script>
 </body>
 </html>
+

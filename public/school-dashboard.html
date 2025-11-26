@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,418 +6,590 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
+    :root {
+      font-family: Arial, sans-serif;
+      --primary: #1a73e8;
+      --primary-soft: #e3eefc;
+      --bg: #f5f5f5;
+      --card-bg: #ffffff;
+      --danger: #d32f2f;
+      --success: #2e7d32;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      background: var(--bg);
+      color: #222;
     }
     header {
-      background: #1a73e8;
+      background: var(--primary);
       color: white;
       padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
     }
     header h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
     }
     header .right {
-      font-size: 14px;
+      font-size: 13px;
+      opacity: 0.9;
+      text-align: right;
     }
     .container {
-      padding: 20px;
+      padding: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .top-row {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
       font-size: 14px;
     }
-    select, input[type="number"] {
-      padding: 5px 8px;
+    .top-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    select, input[type="number"], input[type="text"], input[type="password"] {
+      padding: 6px 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 14px;
+      font-size: 13px;
+      min-width: 70px;
     }
     button {
-      padding: 6px 10px;
+      padding: 7px 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      background: #1a73e8;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    button.primary {
+      background: var(--primary);
       color: white;
+    }
+    button.outline {
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    button.danger {
+      background: var(--danger);
+      color: white;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .login-box {
+      background: var(--card-bg);
+      padding: 10px 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      max-width: 360px;
+    }
+    .login-status {
       font-size: 13px;
     }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     .card {
-      background: white;
-      padding: 14px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      padding: 12px 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .card h3 {
-      margin: 0 0 6px 0;
-      font-size: 15px;
+      margin: 0;
+      font-size: 14px;
+      color: #555;
     }
     .card p {
       margin: 0;
       font-size: 18px;
       font-weight: bold;
     }
+    .card span.sub {
+      font-size: 11px;
+      color: #777;
+    }
     .note {
       font-size: 12px;
       color: #555;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      border-radius: 8px;
+      background: var(--card-bg);
+      border-radius: 12px;
       overflow: hidden;
+      font-size: 13px;
     }
     th, td {
       padding: 8px 10px;
-      border-bottom: 1px solid #ddd;
-      font-size: 13px;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background: #e3eefc;
+      background: var(--primary-soft);
       text-align: left;
+      font-weight: 600;
     }
-    tr:hover {
-      background: #f1f1f1;
+    tr:hover td {
+      background: #f8f8f8;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #eee;
+    }
+    .tag.female {
+      background: rgba(233, 30, 99, 0.1);
+      color: #c2185b;
+    }
+    .tag.male {
+      background: rgba(33, 150, 243, 0.1);
+      color: #1565c0;
+    }
+    .tag.unknown {
+      background: rgba(158, 158, 158, 0.15);
+      color: #555;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 12px 14px;
+      }
+      header h1 {
+        font-size: 16px;
+      }
+      .container {
+        padding: 12px;
+      }
+      .top-row {
+        align-items: flex-start;
+      }
+      table {
+        font-size: 12px;
+      }
+      th, td {
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .top-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .login-box {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>School Attendance Dashboard (9th–12th)</h1>
-    <div class="right">
-      Common view for Principal and Teachers
-    </div>
-  </header>
+<header>
+  <h1>School Attendance Dashboard (9th–12th)</h1>
+  <div class="right">
+    Principal: keep "All classes"<br />
+    Teacher: log in to lock your class view
+  </div>
+</header>
 
-  <div class="container">
+<div class="container">
 
-    <div class="top-row">
-      <div>
-        Date (today): <span id="todayDate"></span>
-      </div>
-
-      <div>
-        Class:
-        <select id="classFilter" onchange="renderDashboard()">
-          <option value="">All classes (Principal)</option>
-        </select>
-      </div>
-
-      <div>
-        Total Girls:
-        <input type="number" id="totalGirlsInput" value="" min="0" style="width:80px;" />
-        Total Boys:
-        <input type="number" id="totalBoysInput" value="" min="0" style="width:80px;" />
-        <button onclick="renderDashboard()">Apply</button>
-      </div>
-
-      <div>
-        <button onclick="reloadAll()">Refresh Data</button>
-      </div>
+  <div class="top-row">
+    <div class="top-group">
+      <span>Date: <strong id="todayDate"></strong></span>
     </div>
 
-    <div class="cards">
-      <div class="card">
-        <h3>Total Girls (scope)</h3>
-        <p id="totalGirls">0</p>
-      </div>
-      <div class="card">
-        <h3>Girls Present</h3>
-        <p id="girlsPresent">0</p>
-      </div>
-      <div class="card">
-        <h3>Girls Absent</h3>
-        <p id="girlsAbsent">0</p>
-      </div>
-      <div class="card">
-        <h3>Total Boys (scope)</h3>
-        <p id="totalBoys">0</p>
-      </div>
-      <div class="card">
-        <h3>Boys Present</h3>
-        <p id="boysPresent">0</p>
-      </div>
-      <div class="card">
-        <h3>Boys Absent</h3>
-        <p id="boysAbsent">0</p>
-      </div>
-      <div class="card">
-        <h3>Total Present (All)</h3>
-        <p id="totalPresent">0</p>
-      </div>
-      <div class="card">
-        <h3>Unknown Gender Present</h3>
-        <p id="unknownPresent">0</p>
-      </div>
+    <div class="top-group">
+      <label for="classFilter">Class:</label>
+      <select id="classFilter" onchange="renderDashboard()">
+        <option value="">All classes (Principal)</option>
+      </select>
     </div>
 
-    <div class="note">
-      This table shows <b>today's</b> attendance for the selected class (or all classes).
-      Principal keeps "All classes". Teachers select their own class like 9A, 10B etc.
+    <div class="top-group">
+      <span>Girls:</span>
+      <input type="number" id="totalGirlsInput" min="0" placeholder="Total girls" />
+      <span>Boys:</span>
+      <input type="number" id="totalBoysInput" min="0" placeholder="Total boys" />
+      <button class="primary" onclick="renderDashboard()">Apply</button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Class</th>
-          <th>Student ID (Token)</th>
-          <th>Name</th>
-          <th>Gender</th>
-          <th>Method</th>
-        </tr>
-      </thead>
-      <tbody id="attendanceBody">
-        <tr><td colspan="6">Loading...</td></tr>
-      </tbody>
-    </table>
-
+    <div class="top-group">
+      <button class="outline" onclick="reloadAll()">Refresh data</button>
+      <button class="primary" onclick="downloadExcel()">Download Excel</button>
+    </div>
   </div>
 
-  <script>
-    // --------------------------------------------------
-    // 1) CLASS LIST (9th–12th, sections A/B/C)
-    // --------------------------------------------------
-    const CLASS_LIST = [
-      "9A", "9B", "9C",
-      "10A", "10B", "10C",
-      "11A", "11B", "11C",
-      "12A", "12B", "12C"
-    ];
+  <div class="top-row">
+    <div class="login-box" id="loginBox">
+      <div class="login-status" id="loginStatus">Teacher login (optional):</div>
+      <input type="text" id="loginUsername" placeholder="Username" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button class="primary" onclick="handleLogin()">Login</button>
+    </div>
 
-    // --------------------------------------------------
-    // 2) OPTIONAL: small master for demo (id -> name/gender)
-    //    You can extend or ignore. Dashboard works even if
-    //    some IDs are not listed here (they become "unknown").
-    // --------------------------------------------------
-    const STUDENT_MASTER = [
-      { id: "24-9A-001",  name: "Ayesha Khan",    class_code: "9A",  gender: "F" },
-      { id: "24-9A-002",  name: "Simran Kaur",    class_code: "9A",  gender: "F" },
-      { id: "24-9A-003",  name: "Rahul Verma",    class_code: "9A",  gender: "M" },
+    <div class="login-box" id="loggedInBox" style="display:none;">
+      <div class="login-status">
+        Logged in as: <strong id="loggedTeacherName"></strong><br />
+        Class locked to: <strong id="loggedTeacherClass"></strong>
+      </div>
+      <button class="danger" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
 
-      { id: "24-9B-001",  name: "Neha Singh",     class_code: "9B",  gender: "F" },
-      { id: "24-9B-002",  name: "Arjun Mehta",    class_code: "9B",  gender: "M" },
-      { id: "24-9B-003",  name: "Ritika Sharma",  class_code: "9B",  gender: "F" },
+  <div class="cards">
+    <div class="card">
+      <h3>Total Girls (scope)</h3>
+      <p id="totalGirls">0</p>
+      <span class="sub">Configured above</span>
+    </div>
+    <div class="card">
+      <h3>Girls Present</h3>
+      <p id="girlsPresent">0</p>
+      <span class="sub">Unique girls marked present today</span>
+    </div>
+    <div class="card">
+      <h3>Girls Absent</h3>
+      <p id="girlsAbsent">0</p>
+      <span class="sub">Total girls minus present</span>
+    </div>
 
-      { id: "24-10A-001", name: "Priya Sharma",   class_code: "10A", gender: "F" },
-      { id: "24-10A-002", name: "Aditya Singh",   class_code: "10A", gender: "M" },
-      { id: "24-10A-003", name: "Neha Gupta",     class_code: "10A", gender: "F" },
+    <div class="card">
+      <h3>Total Boys (scope)</h3>
+      <p id="totalBoys">0</p>
+      <span class="sub">0 for girls school</span>
+    </div>
+    <div class="card">
+      <h3>Boys Present</h3>
+      <p id="boysPresent">0</p>
+      <span class="sub">Unique boys marked present today</span>
+    </div>
+    <div class="card">
+      <h3>Boys Absent</h3>
+      <p id="boysAbsent">0</p>
+      <span class="sub">Total boys minus present</span>
+    </div>
 
-      { id: "24-11A-001", name: "Ishita Gupta",   class_code: "11A", gender: "F" },
-      { id: "24-11A-002", name: "Mohit Sharma",   class_code: "11A", gender: "M" },
-      { id: "24-11A-003", name: "Pooja Kumari",   class_code: "11A", gender: "F" },
+    <div class="card">
+      <h3>Total Present (all)</h3>
+      <p id="totalPresent">0</p>
+      <span class="sub">Girls + boys + unknown gender</span>
+    </div>
+    <div class="card">
+      <h3>Unknown Gender Present</h3>
+      <p id="unknownPresent">0</p>
+      <span class="sub">IDs not mapped to boy/girl</span>
+    </div>
+  </div>
 
-      { id: "24-12A-001", name: "Sana Khan",      class_code: "12A", gender: "F" },
-      { id: "24-12A-002", name: "Imran Ali",      class_code: "12A", gender: "M" },
-      { id: "24-12A-003", name: "Kritika Jain",   class_code: "12A", gender: "F" }
-    ];
-    // You can delete or add more students above later.
+  <div class="note" id="scopeNote">
+    Showing today's attendance for all classes. Use class dropdown or teacher login to narrow view.
+  </div>
 
-    // --------------------------------------------------
-    // Internal state
-    // --------------------------------------------------
-    let studentsById = {};
-    let attendanceToday = [];
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Class</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>Method</th>
+      </tr>
+    </thead>
+    <tbody id="attendanceBody">
+      <tr><td colspan="6">Loading...</td></tr>
+    </tbody>
+  </table>
 
-    function getTodayDateString() {
-      const d = new Date();
-      return d.toISOString().slice(0, 10); // yyyy-mm-dd
+</div>
+
+<script>
+  // Class list 9th to 12th with sections A/B/C
+  const CLASS_LIST = [
+    "9A", "9B", "9C",
+    "10A", "10B", "10C",
+    "11A", "11B", "11C",
+    "12A", "12B", "12C"
+  ];
+
+  // Simple teacher accounts for demo
+  // username / password / classCode / display name
+  const TEACHERS = [
+    { username: "t9a",  password: "1234", classCode: "9A",  name: "9A Class Teacher" },
+    { username: "t10a", password: "1234", classCode: "10A", name: "10A Class Teacher" },
+    { username: "t11a", password: "1234", classCode: "11A", name: "11A Class Teacher" },
+    { username: "t12a", password: "1234", classCode: "12A", name: "12A Class Teacher" }
+  ];
+
+  // Small sample master data for demo
+  // You can extend this later with real IDs
+  const STUDENT_MASTER = [
+    { id: "24-9A-001",  name: "Ayesha Khan",    class_code: "9A",  gender: "F" },
+    { id: "24-9A-002",  name: "Simran Kaur",    class_code: "9A",  gender: "F" },
+    { id: "24-9A-003",  name: "Rahul Verma",    class_code: "9A",  gender: "M" },
+
+    { id: "24-10A-001", name: "Priya Sharma",   class_code: "10A", gender: "F" },
+    { id: "24-10A-002", name: "Aditya Singh",   class_code: "10A", gender: "M" },
+    { id: "24-10A-003", name: "Neha Gupta",     class_code: "10A", gender: "F" },
+
+    { id: "24-11A-001", name: "Ishita Gupta",   class_code: "11A", gender: "F" },
+    { id: "24-11A-002", name: "Mohit Sharma",   class_code: "11A", gender: "M" },
+    { id: "24-11A-003", name: "Pooja Kumari",   class_code: "11A", gender: "F" },
+
+    { id: "24-12A-001", name: "Sana Khan",      class_code: "12A", gender: "F" },
+    { id: "24-12A-002", name: "Imran Ali",      class_code: "12A", gender: "M" },
+    { id: "24-12A-003", name: "Kritika Jain",   class_code: "12A", gender: "F" }
+  ];
+
+  let studentsById = {};
+  let attendanceToday = [];
+  let loggedTeacher = null;
+
+  function getTodayDateString() {
+    const d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+
+  function buildStudentIndex() {
+    studentsById = {};
+    STUDENT_MASTER.forEach(st => {
+      if (!st.id) return;
+      studentsById[st.id] = st;
+    });
+  }
+
+  function setupClassFilter() {
+    const select = document.getElementById("classFilter");
+    while (select.options.length > 1) {
+      select.remove(1);
     }
+    CLASS_LIST.forEach(cls => {
+      const opt = document.createElement("option");
+      opt.value = cls;
+      opt.textContent = cls;
+      select.appendChild(opt);
+    });
+  }
 
-    function buildStudentIndex() {
-      studentsById = {};
-      STUDENT_MASTER.forEach(st => {
-        if (!st.id) return;
-        studentsById[st.id] = st;
-      });
+  function getTotalsFromInputs() {
+    const g = Number(document.getElementById("totalGirlsInput").value || 0);
+    const b = Number(document.getElementById("totalBoysInput").value || 0);
+    return { totalGirls: g, totalBoys: b };
+  }
+
+  function updateLoginUI() {
+    const loginBox = document.getElementById("loginBox");
+    const loggedBox = document.getElementById("loggedInBox");
+    const classFilter = document.getElementById("classFilter");
+    const scopeNote = document.getElementById("scopeNote");
+
+    if (loggedTeacher) {
+      loginBox.style.display = "none";
+      loggedBox.style.display = "flex";
+      document.getElementById("loggedTeacherName").innerText = loggedTeacher.name;
+      document.getElementById("loggedTeacherClass").innerText = loggedTeacher.classCode;
+      classFilter.value = loggedTeacher.classCode;
+      classFilter.disabled = true;
+      scopeNote.innerText = "Showing today's attendance for class " + loggedTeacher.classCode + " (teacher view).";
+    } else {
+      loginBox.style.display = "flex";
+      loggedBox.style.display = "none";
+      classFilter.disabled = false;
+      const cls = classFilter.value || "all classes";
+      scopeNote.innerText = "Showing today's attendance for " +
+        (cls === "" ? "all classes (principal view)." : ("class " + cls + "."));
     }
+  }
 
-    function setupClassFilter() {
-      const select = document.getElementById("classFilter");
+  function handleLogin() {
+    const u = document.getElementById("loginUsername").value.trim();
+    const p = document.getElementById("loginPassword").value.trim();
+    const match = TEACHERS.find(t => t.username === u && t.password === p);
+    if (!match) {
+      alert("Invalid teacher login");
+      return;
+    }
+    loggedTeacher = match;
+    localStorage.setItem("loggedTeacher", JSON.stringify(loggedTeacher));
+    updateLoginUI();
+    renderDashboard();
+  }
 
-      // keep first option "All classes"
-      while (select.options.length > 1) {
-        select.remove(1);
+  function handleLogout() {
+    loggedTeacher = null;
+    localStorage.removeItem("loggedTeacher");
+    document.getElementById("loginUsername").value = "";
+    document.getElementById("loginPassword").value = "";
+    updateLoginUI();
+    renderDashboard();
+  }
+
+  function loadLoggedTeacherFromStorage() {
+    const raw = localStorage.getItem("loggedTeacher");
+    if (!raw) return;
+    try {
+      const obj = JSON.parse(raw);
+      if (obj && obj.classCode) {
+        loggedTeacher = obj;
       }
+    } catch (e) {}
+  }
 
-      CLASS_LIST.forEach(cls => {
-        const opt = document.createElement("option");
-        opt.value = cls;
-        opt.textContent = cls;
-        select.appendChild(opt);
-      });
-    }
+  function renderDashboard() {
+    const today = getTodayDateString();
+    document.getElementById("todayDate").innerText = today;
 
-    function loadTotalsInput(selectedClass) {
-      const key = "genderTotals_" + (selectedClass || "ALL");
-      const saved = localStorage.getItem(key);
-      if (!saved) {
-        document.getElementById("totalGirlsInput").value = "";
-        document.getElementById("totalBoysInput").value = "";
+    const classFilterEl = document.getElementById("classFilter");
+    const manualClass = classFilterEl.value || "";
+    const selectedClass = loggedTeacher ? loggedTeacher.classCode : manualClass;
+
+    updateLoginUI();
+
+    const { totalGirls, totalBoys } = getTotalsFromInputs();
+
+    const filtered = attendanceToday.filter(row => {
+      const st = studentsById[row.token];
+      const cls = (st && st.class_code) || row.device_id || "";
+      if (selectedClass && cls !== selectedClass) return false;
+      return true;
+    });
+
+    const presentKeys = new Set();
+    filtered.forEach(row => {
+      const key = row.token || row.pin;
+      if (!key) return;
+      presentKeys.add(key);
+    });
+
+    let girlsPresent = 0;
+    let boysPresent = 0;
+    let unknownPresent = 0;
+
+    presentKeys.forEach(idOrPin => {
+      const st = studentsById[idOrPin];
+      if (!st || !st.gender) {
+        unknownPresent += 1;
         return;
       }
-      try {
-        const obj = JSON.parse(saved);
-        document.getElementById("totalGirlsInput").value =
-          obj.girls !== undefined ? obj.girls : "";
-        document.getElementById("totalBoysInput").value =
-          obj.boys !== undefined ? obj.boys : "";
-      } catch (e) {
-        document.getElementById("totalGirlsInput").value = "";
-        document.getElementById("totalBoysInput").value = "";
-      }
+      const g = st.gender.toUpperCase();
+      if (g === "F") girlsPresent += 1;
+      else if (g === "M") boysPresent += 1;
+      else unknownPresent += 1;
+    });
+
+    const girlsAbsent = Math.max(totalGirls - girlsPresent, 0);
+    const boysAbsent = Math.max(totalBoys - boysPresent, 0);
+    const totalPresent = girlsPresent + boysPresent + unknownPresent;
+
+    document.getElementById("totalGirls").innerText = totalGirls;
+    document.getElementById("girlsPresent").innerText = girlsPresent;
+    document.getElementById("girlsAbsent").innerText = girlsAbsent;
+
+    document.getElementById("totalBoys").innerText = totalBoys;
+    document.getElementById("boysPresent").innerText = boysPresent;
+    document.getElementById("boysAbsent").innerText = boysAbsent;
+
+    document.getElementById("totalPresent").innerText = totalPresent;
+    document.getElementById("unknownPresent").innerText = unknownPresent;
+
+    const tbody = document.getElementById("attendanceBody");
+    tbody.innerHTML = "";
+
+    if (!filtered.length) {
+      tbody.innerHTML = "<tr><td colspan='6'>No records for today in this scope.</td></tr>";
+      return;
     }
 
-    function readTotalsInput(selectedClass) {
-      const girlsInput = document.getElementById("totalGirlsInput").value;
-      const boysInput = document.getElementById("totalBoysInput").value;
+    filtered.forEach(row => {
+      const st = studentsById[row.token] || {};
+      const cls = st.class_code || row.device_id || "";
+      const name = st.name || "";
+      const gender = (st.gender || "").toUpperCase();
 
-      let totalGirls = girlsInput === "" ? 0 : Number(girlsInput);
-      let totalBoys = boysInput === "" ? 0 : Number(boysInput);
+      let genderTag = "<span class='tag unknown'>Unknown</span>";
+      if (gender === "F") genderTag = "<span class='tag female'>Girl</span>";
+      if (gender === "M") genderTag = "<span class='tag male'>Boy</span>";
 
-      const key = "genderTotals_" + (selectedClass || "ALL");
-      localStorage.setItem(key, JSON.stringify({
-        girls: totalGirls,
-        boys: totalBoys
-      }));
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.timestamp || ""}</td>
+        <td>${cls}</td>
+        <td>${row.token || ""}</td>
+        <td>${name}</td>
+        <td>${genderTag}</td>
+        <td>${row.method || ""}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
-      return { totalGirls, totalBoys };
-    }
+  async function reloadAll() {
+    try {
+      buildStudentIndex();
+      setupClassFilter();
+      loadLoggedTeacherFromStorage();
 
-    function renderDashboard() {
+      const res = await fetch("/api/attendance");
+      const allData = await res.json();
+
       const today = getTodayDateString();
-      document.getElementById("todayDate").innerText = today;
-
-      const selectedClass = document.getElementById("classFilter").value || "";
-
-      // load last saved totals for this scope, then read current input
-      loadTotalsInput(selectedClass);
-      const { totalGirls, totalBoys } = readTotalsInput(selectedClass);
-
-      // filter attendance by class (scope already limited to today)
-      const filtered = attendanceToday.filter(row => {
-        const st = studentsById[row.token];
-        const cls = (st && st.class_code) || row.device_id || "";
-        if (selectedClass && cls !== selectedClass) return false;
-        return true;
+      attendanceToday = allData.filter(r => {
+        if (!r.timestamp) return false;
+        return String(r.timestamp).startsWith(today);
       });
 
-      // unique present students in this scope
-      const presentKeys = new Set();
-      filtered.forEach(row => {
-        const key = row.token || row.pin;
-        if (!key) return;
-        presentKeys.add(key);
-      });
-
-      let girlsPresent = 0;
-      let boysPresent = 0;
-      let unknownPresent = 0;
-
-      presentKeys.forEach(idOrPin => {
-        const st = studentsById[idOrPin];
-        if (!st || !st.gender) {
-          unknownPresent += 1;
-          return;
-        }
-        const g = st.gender.toUpperCase();
-        if (g === "F") girlsPresent += 1;
-        else if (g === "M") boysPresent += 1;
-        else unknownPresent += 1;
-      });
-
-      // For girls-only school: set totalBoys = 0
-      // For boys-only school: set totalGirls = 0
-      const girlsAbsent = Math.max(totalGirls - girlsPresent, 0);
-      const boysAbsent = Math.max(totalBoys - boysPresent, 0);
-      const totalPresent = girlsPresent + boysPresent + unknownPresent;
-
-      document.getElementById("totalGirls").innerText = totalGirls;
-      document.getElementById("girlsPresent").innerText = girlsPresent;
-      document.getElementById("girlsAbsent").innerText = girlsAbsent;
-
-      document.getElementById("totalBoys").innerText = totalBoys;
-      document.getElementById("boysPresent").innerText = boysPresent;
-      document.getElementById("boysAbsent").innerText = boysAbsent;
-
-      document.getElementById("totalPresent").innerText = totalPresent;
-      document.getElementById("unknownPresent").innerText = unknownPresent;
-
-      // Fill table
-      const tbody = document.getElementById("attendanceBody");
-      tbody.innerHTML = "";
-
-      if (!filtered.length) {
-        tbody.innerHTML = "<tr><td colspan='6'>No records for today in this scope.</td></tr>";
-        return;
-      }
-
-      filtered.forEach(row => {
-        const st = studentsById[row.token] || {};
-        const cls = st.class_code || row.device_id || "";
-        const name = st.name || "";
-        const gender = (st.gender || "").toUpperCase();
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.timestamp || ""}</td>
-          <td>${cls}</td>
-          <td>${row.token || ""}</td>
-          <td>${name}</td>
-          <td>${gender}</td>
-          <td>${row.method || ""}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      renderDashboard();
+    } catch (err) {
+      console.error(err);
+      document.getElementById("attendanceBody").innerHTML =
+        "<tr><td colspan='6'>Error loading data.</td></tr>";
     }
+  }
 
-    async function reloadAll() {
-      try {
-        buildStudentIndex();
-        setupClassFilter();
+  function downloadExcel() {
+    window.location.href = "/download/attendance";
+  }
 
-        const aRes = await fetch("/api/attendance");
-        const allData = await aRes.json();
-
-        const today = getTodayDateString();
-        attendanceToday = allData.filter(r => {
-          if (!r.timestamp) return false;
-          return String(r.timestamp).startsWith(today);
-        });
-
-        renderDashboard();
-      } catch (err) {
-        console.error(err);
-        document.getElementById("attendanceBody").innerHTML =
-          "<tr><td colspan='6'>Error loading data.</td></tr>";
-      }
-    }
-
-    // Load on page load
-    reloadAll();
-  </script>
+  reloadAll();
+</script>
 
 </body>
 </html>
+

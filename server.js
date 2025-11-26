@@ -185,3 +185,13 @@ app.get("/api/attendance", async (req, res) => {
 app.listen(PORT, () => {
   console.log("SERVER + FRONTEND + VOICE running on port", PORT);
 });
+// =============================
+// DOWNLOAD ATTENDANCE EXCEL
+// =============================
+app.get("/download/attendance", (req, res) => {
+  if (!fs.existsSync(excelFile)) {
+    return res.status(404).send("Attendance file not found");
+  }
+
+  res.download(excelFile, "attendance.xlsx");
+});
